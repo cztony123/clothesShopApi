@@ -10,7 +10,6 @@ var moment = require('moment');
 /* 注册 */
 router.post('/api/addUser', function (req, res, next) {
     //接收前端传过来的值
-    
     let params = {
         userName: req.body.userName,
         password: req.body.password,
@@ -25,7 +24,7 @@ router.post('/api/addUser', function (req, res, next) {
         })
     }else{
         //先查询用户名或手机号存不存在
-        var sql = "select * from user where (userName = '"+params.userName+"') or tel = '"+params.tel + "'";
+        var sql = `select * from user where (userName = '${params.userName}') or tel = '${params.tel}'`;
         connection.query(sql, function(error, results){
             if(results.length > 0){
                 res.send({
@@ -50,7 +49,7 @@ router.post('/api/addUser', function (req, res, next) {
                 //开始新增
                 connection.query(addUser, addUserParams, function(error, results){
                     //查询是否新增成功
-                    connection.query(user.queryAdd(params), function(error, results){
+                    connection.query(sql, function(error, results){
                         if(results.length > 0){
                             res.send({
                                 code:200,
@@ -72,37 +71,30 @@ router.post('/api/addUser', function (req, res, next) {
 /* 登录 */
 router.post('/api/login', function (req, res, next) {
     //接收前端传过来的值
-    console.log(req.body, '00000')
-    res.send({
-        code:200,
-        success: true,
-        data: 123,
-        message: '请求成功',
-    })
-    // let params = {
-    //     userName: req.body.userName,
-    //     password: req.body.password,
-    // }
+    let params = {
+        userName: req.body.userName,
+        password: req.body.password,
+        tel: req.body.tel
+    }
 
-    //查询用户名是否存在
-    //查询手机号、用户名、密码
-    // var sql = "select * from user where (tel = '"+params.tel+"' or userName = '"+params.userName+"') and password = '"+params.password + "'";
-    // connection.query(user.queryUser(params), function(error, results){
-    //     if(results.length > 0){
-    //         res.send({
-    //             code:200,
-    //             success: true,
-    //             data: results[0],
-    //             message: '登录成功',
-    //         })
-    //     }else{
-    //         res.send({
-    //             code:300,
-    //             success: false,
-    //             message: '用户名或密码不正确',
-    //         })
-    //     }
-    // })
+    //查询用户名和密码 或 手机号和密码是否存在
+    var sql = `select * from user where (tel = '${params.tel}' or userName = '${params.userName}') and password = '${params.password}'`;
+    connection.query(sql, function(error, results){
+        if(results.length > 0){
+            res.send({
+                code:200,
+                success: true,
+                data: results[0],
+                message: '登录成功',
+            })
+        }else{
+            res.send({
+                code:300,
+                success: false,
+                message: '用户名或密码不正确',
+            })
+        }
+    })
 });
 
 
